@@ -3,6 +3,65 @@
 A refresher for anyone who has used Git before, or for people who want to learn in a safe space. This isn't the only way to use Git, but it's the way that I do it, so it's probably the best.
 
 <details>
+    <summary id="Workflow-overview">Workflow overview</summary>
+
+## Workflow overview
+
+We will step through each of these points below. But this is a rough side by side difference of working with SVN versus the Git equivalence I am about to cover.
+
+<table>
+<tr>
+<th>SVN</th>
+<th>Git</th>
+</tr>
+
+<tr>
+<td>checkout repo</td>
+<td>
+fork repo<br>
+clone your fork<br>
+add all team members as remotes
+</td>
+</tr>
+
+<tr>
+<td>svn update</td>
+<td>
+git fetch --all<br>
+git checkout main<br>
+git merge blessed/main
+</td>
+</tr>
+
+<tr>
+<td>(write lots of code)</td>
+<td>
+git checkout -b PROJ-1234_TaskTitle<br>
+(write some code)<br>
+git commit ...<br>
+(write some more code)<br>
+git commit ...<br>
+(repeat)
+</td>
+</tr>
+
+<tr>
+<td>svn commit</td>
+<td>
+git push<br><br>
+pull request<br>
+someone reviews and approves<br>
+merge pull request
+</td>
+</tr>
+
+</table>
+
+</details>
+
+---
+
+<details>
     <summary id="Set-up-your-project">Set up your project</summary>
 
 ## Set up your project
@@ -77,6 +136,11 @@ git remote add Max https://github.com/MaxEllisAH/GitPractice.git
 ```
 
 Then check it has been added with `git remote`. Repeat for all people working on the project that you want visibility of.
+
+To see or check the full fork paths use:
+```
+git remote -v
+```
 
 Almost done.
 
@@ -195,15 +259,19 @@ Using VS Code:
 
 1.  Make changes and save the file
 2.  Open the Source Control panel
-3.  Stage files using the **+** icon
-4.  Write a meaningful commit message
-5.  Click the ✓ to commit
+3.  Review changes before staging
+4.  Stage files using the **+** icon
+5.  Write a meaningful commit message
+6.  Click the ✓ to commit
 
 A good commit message is important. Avoid things like "WIP" or "fixed bug".
+
+In step 3 above when using VS Code, clicking on each file will bring up a traditional diff. Use this opportunity to remove any unnecessary changes e.g. extra new lines or whitespace.
 
 CLI equivalent:
 
 ```
+git diff
 git add path/to/file
 # or to stage everything
 git add -A
@@ -239,6 +307,8 @@ Give it:
 
 -   A sensible title. This should be the Jira ticket ID and title.
 -   A good description
+   + If working from a jira ticket, add a link to the ticket here
+   + If you have made good commit messages so far, this can often be a collection or summary of just those commit messages
 -   Check the "Files changed" tab
 
 Submit it. Now anyone can review it, comment, request changes, or approve. When working on project we can request reviewers on the PR page, word of mouth, or simply by seeing which PRs are currently pending. I have left a PR pending at https://github.com/rich-steele/GitPractice/pulls. Go there and leave a comment on it. Approve it if you think it's ready to merge in.
@@ -297,6 +367,74 @@ git merge main
 
 Git is far better at merging than SVN. This is part of the reason that we are migrating to it. Merging will be a regular and easy process.
 
+</details>
+
+---
+
+<details>
+  <summary id="Branch-switching">Branch switching</summary>
+
+## Branch switching
+
+Creating and switching between branches is incredibly easy and useful with git. It allows you to make and save changes to files, then change to a different task with entirely different code changes if the first task becomes blocked, or you are required to switch to a different feature.
+
+I'll walk through a quick demonstration.
+
+Open your graph/tree visual representation to follow where your position in it changes.
+
+First move to where your main branch is and checkout a new branch:
+```
+git checkout main
+git checkout -b DEMO_HelloWorld
+```
+
+Open *StringLib.cpp* and add a comment in the constructor that says "Hello World!"
+```
+#include "StringLib.h"
+
+StringLib::StringLib()
+{
+    // Hello World!
+}
+```
+
+Save and commit the change as before. Notice in your graph view how the commit has been added at the top.
+
+Move back to where your main branch is and checkout a new branch:
+```
+git checkout main
+git checkout -b DEMO_FrenchHelloWorld
+```
+
+Notice the tree view. Your previous commit is still at the top, but your active highlighted position is now in the new branch at the same position as main.
+
+As before add a comment to *StringLib.cpp* in the constructor that says "Bonjour le monde!"
+```
+#include "StringLib.h"
+
+StringLib::StringLib()
+{
+    // Bonjour le monde!
+}
+```
+
+Save and commit the change as before. Notice in your graph view how the commit has been added at the top, but on a seperate path from the HelloWorld branch, both branching from main.
+
+With *StringLib.cpp* open, use git to switch back and forth between the branches you have just created. The file will change, the highlighted position in the tree view will change. It's quick, easy, and safe.
+
+```
+git checkout DEMO_HelloWorld
+
+# See the file change to show "Hello World!"
+
+git checkout DEMO_FrenchHelloWorld
+
+# See the file change to show "Bonjour le monde!"
+# Repeat as much as you like
+```
+
+These branches are now pointless so you can delete them as before
+  
 </details>
 
 ---
