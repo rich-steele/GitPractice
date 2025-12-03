@@ -1,13 +1,13 @@
 # Git Practice
 
-A refresher for anyone who has used Git before, or for people who want to learn in a safe space. This isn't the only way to use Git, but it's the way that I do it, so it's probably the best.
+A refresher for anyone who has used Git before, or for people who want to learn in a safe space.
 
 <details>
     <summary id="Workflow-overview">Workflow overview</summary>
 
 ## Workflow overview
 
-We will step through each of these points below. But this is a rough side by side difference of working with SVN versus the Git equivalence I am about to cover.
+We will step through each of these points below. But this is a rough side by side difference of working with SVN versus Git.
 
 <table>
 <tr>
@@ -17,38 +17,33 @@ We will step through each of these points below. But this is a rough side by sid
 
 <tr>
 <td>checkout repo</td>
-<td>
-fork repo<br>
-clone your fork<br>
-add all team members as remotes
-</td>
+<td>clone repo</td>
 </tr>
 
 <tr>
-<td>svn update</td>
+<td>update</td>
 <td>
-git fetch --all<br>
-git checkout main<br>
-git merge blessed/main
+fetch<br>
+pull
 </td>
 </tr>
 
 <tr>
 <td>(write lots of code)</td>
 <td>
-git checkout -b PROJ-1234_TaskTitle<br>
-(write some code)<br>
-git commit ...<br>
-(write some more code)<br>
-git commit ...<br>
-(repeat)
+checkout a feature branch<br>
+&nbsp&nbsp&nbsp(write some code)<br>
+local commit<br>
+&nbsp&nbsp&nbsp(write some more code)<br>
+local commit<br>
+&nbsp&nbsp&nbsp(repeat)
 </td>
 </tr>
 
 <tr>
-<td>svn commit</td>
+<td>commit</td>
 <td>
-git push<br><br>
+push<br><br>
 pull request<br>
 someone reviews and approves<br>
 merge pull request
@@ -66,28 +61,65 @@ merge pull request
 
 ## Set up your project
 
-First, you need a GitHub account. If you haven't got one, create one now. For the username we will be using the naming convention: \<firstname\>\<surname\>AH e.g. `RichardSteeleAH`.
+First, you need a GitHub account. If you haven't got one, create one now. For the username use the naming convention: \<firstname\>\<surname\>AH e.g. `RichardSteeleAH`.
 
-Go to: https://github.com/rich-Steele/GitPractice (If you're reading this already, open it in a new window so you can follow along.)
+Next we need to do some setup on your machine. The following is for Windows environments. Linux and macOS are very similar though.
 
-In the top right you'll see **Watch**, **Fork**, and **Star**. Click **Fork**, then accept using the green **Create Fork** button.
+If you do not have Git installed already then go to https://git-scm.com/install/ and download the latest stable release for Windows. I can't remember the options it gives you but if given the option then make sure you include *Git bash* with your install.
 
-You should now be on the URL: https://github.com/<YOUR_NAME>/GitPractice
+For security we will be using **SSH keys**. Add one now.
 
-This is *your* copy of the repository. A **fork** is a personal copy of someone else's project. It acts as a bridge between the original repo and your own, allowing you to open **Pull Requests** with your changes. Forking provides a healthy boundary between your work and the central project.
+To generate a key, right click anywhere, choose *Show more options*, and click *Open Git Bash Here*:
 
-Next, click the green **Code** button and (with HTTPS selected) copy the clone link.
+```
+# Generate a key and save it to the default location with the default options
 
----
+ssh-keygen -t ed25519 -C "<your GitHub email address>"
 
-Now we set things up on your machine.
+# e.g.
+# ssh-keygen -t ed25519 -C "richard.steele@allen-heath.com"
+```
+
+View your public key:
+
+```
+cat ~/.ssh/id_ed25519.pub
+```
+
+Copy the entire output (ensure no white space at the end).
+
+Next add the key to your GitHub account:
+
+1.  Go to https://github.com/settings/keys
+2.  Click **New SSH key**
+3.  Paste your public key into **Key**
+4.  Give it a meaningful title e.g. dLive VM
+5.  Click **Add SSH key**
+
+Test:
+
+```
+ssh -T git@github.com
+```
+
+> Note you will need to set up new key per machine. Expect to have separate keys for your Windows pc and each of your virtual machines.
+
+Go to: https://github.com/Allen-Heath/GitPractice (If you're reading this already, open it in a new window so you can follow along.)
+
+Click the green **Code** button, change from **HTTPS** to **SSH** then copy the clone link. SSH links will look like this:
+
+```
+git@github.com:Allen-Heath/<RepoName>.git
+```
+
+You will **not** use HTTPS for cloning internal repos. We will always use **SSH keys**.
 
 Go to wherever you want this project to live on your PC. It doesn't matter where, mine is in: C:\Users\Richard.Steele
 
 Right-click → **Git Bash Here**, then type `git clone` then right-click and paste the link you copied before. It should look like this:
 
 ```
-git clone https://github.com/<YOUR_NAME>/GitPractice.git
+git clone git@github.com:Allen-Heath/<RepoName>.git
 ```
 
 Press return. This downloads the repo to your computer.
@@ -98,55 +130,11 @@ Move into the folder:
 cd GitPractice
 ```
 
----
-
-Next, add me as a remote. This simply means tracking someone else's fork.
-
-Check your current remotes:
-
-```
-git remote
-```
-
-You'll see only `origin`. This is what Git calls *your* repo.
-
-Add me:
-
-```
-git remote add blessed https://github.com/rich-Steele/GitPractice.git
-```
-
-Check again:
-
-```
-git remote
-````
-
-You should now see `origin` and `blessed`.
-
-> A blessed, or canonical, repository is one which has the approval of the managers of the project. The blessed repository is supposed to be the de facto standard where all other clones are made from. If there is one place where code should be correct, it is the blessed repository.
-
-For Allen & Heath work, this will be the `Allen-Heath` repository that you create your fork from.
-
-You can and should add other team members as remotes too. You will need the URL of their forks. To find people's forks, on GitHub go to the **blessed repo** (for this example: https://github.com/rich-Steele/GitPractice) → click **Fork** → **View existing forks**. You'll see all users who have forked the project. Copy their link, or click through to their fork and copy the URL from the browser URL bar. Add them using the `git remote add` command followed by *(nickname or alias)* *(their fork URL)*
-
-```
-# Example until he sets one up
-git remote add Max https://github.com/MaxEllisAH/GitPractice.git
-```
-
-Then check it has been added with `git remote`. Repeat for all people working on the project that you want visibility of.
-
-To see or check the full fork paths use:
-```
-git remote -v
-```
-
 Almost done.
 
 ---
 
-Lastly, you are currently on the **main** branch. This is **bad**. Do not work in `main`. Do not be in your `main` branch for long. `main` is your important, stable branch. Not a working branch. It should match other people's `main` and the blessed repo's `main`. It is the single source of truth in your repository.
+Lastly, you are currently on the **main** branch. This is **bad**. Do not work in `main`. Do not be in your `main` branch for long. `main` is your important, stable branch. Not a working branch. It should match other people's `main`. It is the single source of truth in your repository.
 
 Note that historically this was called `master` however the convention has recently changed. You will see Git veterans mix it up still although the meaning is the same.
 
@@ -197,9 +185,9 @@ Now open your repo's folder in VS Code:
 
 Open the Source Control sidebar (three circles with lines). In the top bar you'll see an icon with vertical lines and dots **View Git Graph**.
 
-The other useful control here is the **Show Remote Branches** toggle to display or hide branches from your remotes.
+The other useful control here is the **Show Remote Branches** toggle to display or hide other developers' branches that exist on GitHub.
 
-I strongly recommend keeping a VS Code window open with Git Graph even if you code in another IDE. If you go to the top menu bar and click **Terminal → New Terminal** then you get a window below to type in Git commands.
+I recommend keeping a VS Code window open with Git Graph even if you code in another IDE. If you go to the top menu bar and click **Terminal → New Terminal** then you can get a bash window below to type in future Git commands.
 
 Finally set up your Git identity:
 
@@ -236,9 +224,9 @@ Firstly, we always work in a branch. These are lightweight, quick, and easy to m
 
 Commits are purely to your local git instance. Many commits are made when working on a task.
 
-Push is when you send your changes to GitHub. You can do this as often as you like, it will only update your fork. The central repo will not be affected or even notified, and all your work in progress is then backed up on GitHub instead of solely on your hard drive.
+Push is when you send your changes to GitHub. You can do this as often as you like, it will only update your current branch. The main branch will not be affected, and all your work in progress is then backed up on GitHub instead of solely on your hard drive.
 
-Pull Request is the final step to merge your changes into the central repository (blessed)
+Pull Request is the final step to merge your changes into main.
 
 ---
 
@@ -246,7 +234,10 @@ In the repo are some files. Go to `MathLib.cpp` and you can see the function is 
 
 First we will checkout and move into a new branch:
 ```
-git checkout -b MATH-0001_FixAddFunction
+git checkout -b MATH-0001_<Your name>_FixAddFunction
+
+# e.g.
+# git checkout -b MATH-0001_RichSteele_FixAddFunction
 ```
 
 Change line 5 from `return 0;` to `return A + B;` and save. Next we will commit the change.
@@ -266,7 +257,7 @@ Using VS Code:
 
 A good commit message is important. Avoid things like "WIP" or "fixed bug".
 
-In step 3 above when using VS Code, clicking on each file will bring up a traditional diff. Use this opportunity to remove any unnecessary changes e.g. extra new lines or whitespace.
+In step 3 above when using VS Code, clicking on each file will bring up a traditional diff. Use this opportunity to remove any unnecessary changes e.g. extra new lines or whitespace. You can do this in the opened diff view within VS Code.
 
 CLI equivalent:
 
@@ -283,7 +274,7 @@ Feel free to make another change and commit that too. You should be comfortable 
 
 ### Push
 
-This sends your branch to your GitHub fork:
+This sends your branch to GitHub:
 
 ```
 git push
@@ -297,11 +288,11 @@ git push -u origin <branchName>
 
 After that, `git push` is enough.
 
-Similar to commits, you should get used to pushing often. Keeping GitHub up to date with your changes has no downsides. It does not affect the central repo, and if your computer dies overnight then everything is still stored safely and securely on GitHub. That only happens with Pull requests.
+Similar to commits, you should get used to pushing often. Keeping GitHub up to date with your changes has no downsides. If your computer dies overnight then everything is stored safely and securely on GitHub. It does not affect anyone else's branches, that only happens with Pull requests.
 
 ### Pull Request
 
-A Pull Request (PR) asks to merge your changes into the blessed repo. Often if you are quick enough after pushing then GitHub will give you a notification about the branch and suggest that you pull request. Otherwise go to your fork on GitHub → switch to your branch → **New Pull Request**.
+A Pull Request (PR) asks to merge your changes into main. Often, if you are quick enough after pushing then GitHub will give you a notification about the branch and suggest that you pull request. Otherwise go to the repo on GitHub → switch to your branch → **New Pull Request**.
 
 Give it:
 
@@ -311,13 +302,13 @@ Give it:
    + If you have made good commit messages so far, this can often be a collection or summary of just those commit messages
 -   Check the "Files changed" tab
 
-Submit it. Now anyone can review it, comment, request changes, or approve. When working on project we can request reviewers on the PR page, word of mouth, or simply by seeing which PRs are currently pending. I have left a PR pending at https://github.com/rich-steele/GitPractice/pulls. Go there and leave a comment on it. Approve it if you think it's ready to merge in.
+Submit it. Now anyone can review it, comment, request changes, or approve. When working on project we can request reviewers on the PR page, word of mouth, or simply by seeing which PRs are currently pending. I have left a PR pending at https://github.com/Allen-Heath/GitPractice/pulls. Go there and leave a comment on it. Approve it if you think it's ready to merge in. To start a review go to the Files Changed tab on that pull request page. You can comment on any line by hovering over a line and clicking the blue `+` button, start a review, request changes, or approve with the green review button in the upper right.
 
 PR review is normal and healthy. It is how quality is maintained.
 
-Once approved by someone, it is your responsibility to merge in your own pull request. You will have recieved an email when your PR is approved with a link to the PR itself. Go there and click merge. Now blessed/main has your changes.
+Once approved by someone, it is your responsibility to merge in your own pull request. You will have recieved an email when your PR is approved with a link to the PR itself. Go there and click merge. Now main has your changes.
 
-The branch you were working on has served it's purpose and you can delete it.
+The branch you were working on has served it's purpose and you can delete it. After merging GitHub will prompt this for you.
 
 ```
 # to remove just your local branch leaving the one on GitHub intact
@@ -342,13 +333,42 @@ Also, Git will warn you if you are about to delete a branch with unmerged change
 
 ## Updating
 
-To keep your repo up to date with blessed:
+Your local repo is not updated automatically. You will generally use either of two methods keep your local repo up to date.
+
+You can use `git pull` to pull down any changes made to the branch you are currently in. Consider working on a feature that requires both Windows desktop work and Ubuntu VM work. You can push code changes on a branch from one machine, then pull down those changes from another without ever having to pull request into main. But, most often you will use it to keep your main branch up to date with the main branch on GitHub. Following this, you will have learned not to be currently in main so move into it now and pull down any changes:
+
+```
+git checkout main
+git pull
+git checkout <Whatever branch you were in before so you are not in main>
+
+# if you have forgotten your other branch's name, list all local branches with
+
+git branch
+```
+
+Now your main branch is up to date.
+
+However your other existing branches have not been updated. You will have to manually update them yourself. Go into whatever development branch you need to update:
+
+```
+git checkout <Branch name>
+git merge main
+```
+
+You can also fetch any changes made by anyone to the project's repo e.g. other developers' working branches, or the branch you would have pushed in the previous example from your other development machine.
 
 ```
 git fetch --all
 git checkout main
-git merge blessed/main
+git merge origin/main
 ```
+
+> Note: 'Origin' here is what Git calls the repo from which you have cloned. In this case, the Allen-Heath GitHub repo.
+> Check this by entering `git remote -v`.
+>
+> Fetching does **not** update changed branches locally. It merely updates your local git instance's knowledge of the state of the remote branch. You will update your local code yourself.
+> This is normal, safe, and will feel like second nature soon.
 
 Now your `main` matches the canonical version.
 
@@ -433,63 +453,34 @@ git checkout DEMO_FrenchHelloWorld
 # Repeat as much as you like
 ```
 
-These branches are now pointless so you can delete them as before
+These branches are now pointless so you can delete them as before.
+
+> Get in the habit of regularly housekeeping your old branches. Although it is expected to have a few with experimental features, work in progress, or specific debug output in.
   
 </details>
 
 ---
 
 <details>
-  <summary id="What-comes-next">What comes next?</summary>
+  <summary id="Submodules">Submodules</summary>
 
-## What comes next?
+## Submodules
 
-Our GitHub organisation is secure and private. You'll need to be added to the appropriate team by your line manager.
+Our projects' architecture can be very complex. They often rely upon shared dependencies that span many projects e.g. AHNet. We do not want a different copy of this folder in every project that will inevitably become out of sync with other copies.
 
-You will also **not** use HTTPS for cloning internal repos. We use **SSH keys**. Add one now.
+Instead we will use the concept of *submodules* to include that code. A submodule is **another repo** that **our repo** will include and pull down as well. You do not need to checkout each submodule as a new repo. Submodules that each project is dependant upon will be configured in the repo itself.
 
-To generate a key:
-
-```
-# Generate a key and save it to the default location
-
-ssh-keygen -t ed25519 -C "<your GitHub email address>"
-```
-
-View your public key:
+You will pull down required submodules with any relevant changes with this command:
 
 ```
-cat ~/.ssh/id_ed25519.pub
+git submodule update --init --recursive
 ```
 
-Copy the entire output.
+Other than having to type this in, submodule use shouldn't affect you day to day.
 
-Add the key to GitHub:
+However, if you are working on a task that spans across multiple submodules, then know that you will have to commit, push, and pull request to each corresponding repo e.g. dLive **and** AHNet. This is a *good thing*. It will make us aware of how our changes will potentially affect other dependant projects by highlighting the changes we are making to each repo. It should help mitigate accidental commits breaking other projects.
 
-1.  Go to https://github.com/settings/keys
-2.  Click **New SSH key**
-3.  Paste your public key into **Key**
-4.  Give it a meaningful title e.g. dLive VM
-5.  Click **Add SSH key**
-
-Test:
-
-```
-ssh -T git@github.com
-```
-
-After you are added to the project team, when you go to clone the repo use SSH and the link will look like this:
-
-```
-git@github.com:Allen-Heath/<RepoName>.git
-```
-
-Clone as before:
-```
-git clone git@github.com:Allen-Heath/<RepoName>.git
-```
-
-Note you will need to set up new key per machine. Expect to have separate keys for your Windows pc and each of your virtual machines.
+---
 
 Let me know if you run into any problems.
 
@@ -498,6 +489,7 @@ Rich
 </details>
 
 ---
+
 <details>
   <summary id="Cheat-sheet">Cheat sheet</summary>
 
@@ -519,27 +511,32 @@ git branch
 
 Switch to an existing branch:
 ```
-git checkout BRID-1234_MyBranchName
+git checkout BRID-1234_MyName_MyBranchName
 ```
 
 Create and switch to a new branch:
 ```
-git checkout -b BRID-1235_MyNewBranchName
+git checkout -b BRID-1235_MyName_MyNewBranchName
 ```
 
-Update your repo from blessed:
+Update your repo:
 ```
 git fetch --all
 git checkout main
-git merge blessed/main
+git merge origin/main
 
 # Don't stay in main
 
-git checkout BRID-1234_MyBranchName
+git checkout BRID-1234_MyName_MyBranchName
 
 # Bring your branch up to date
 
 git merge main
+```
+
+pull down changes for my current branch, remote to local
+```
+git pull
 ```
 
 Stage files (although I recommend using a GUI interface):
@@ -555,11 +552,6 @@ git commit -m "This is my sensible commit message"
 Push:
 ```
 git push
-```
-
-Add a remote
-```
-git remote add <name> <fork URL>
 ```
 
 </details>
